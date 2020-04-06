@@ -15,8 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl python shadow sudo systemd \
-    vim wget which"
+packages="bash curl python python-xml shadow sudo systemd vim wget which"
 
 # Create a container
 container=$(buildah from ${image_name}/leap:${image_tag})

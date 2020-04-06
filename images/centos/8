@@ -32,6 +32,7 @@ buildah config --volume /sys/fs/cgroup ${container}
 
 # Provision the container
 buildah run ${container} dnf -y update
+buildah run ${container} dnf -y install initscripts
 buildah run ${container} dnf -y install ${packages}
 buildah run ${container} dnf clean all
 

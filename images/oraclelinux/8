@@ -32,6 +32,7 @@ buildah config --volume /sys/fs/cgroup ${container}
 
 # Provision the container
 buildah run ${container} yum -y update
+buildah run ${container} yum -y install initscripts
 buildah run ${container} yum -y install ${packages}
 buildah run ${container} yum clean all
 
