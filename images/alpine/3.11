@@ -29,8 +29,11 @@ buildah config --env container=docker ${container}
 # Provision the container
 buildah run ${container} apk upgrade
 buildah run ${container} apk add --no-cache ${packages}
+buildah run ${container} mkdir -p /etc/network/
+buildah run ${container} sh -c \
+    'echo -e "auto lo\niface lo inet loopback" | tee /etc/network/interfaces'
+buildah run ${container} sed -ie '$arc_provide="loopback net"' /etc/rc.conf
 buildah run ${container} rm -rf "/tmp/"*
-buildah run ${container} sed -i 'rc_provide="loopback net"' /etc/rc.conf
 buildah run ${container} sed -i -e \
     's/#rc_sys=""/rc_sys="lxc"/g' -e 's/^#\(rc_logger="YES"\)$/\1/' /etc/rc.conf
 buildah run ${container} sed -i '/tty/d' /etc/inittab
