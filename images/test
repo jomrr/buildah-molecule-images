@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+declare -a images
+declare -a paths
+declare -a service_manager
+
+fill_arrays() {
+    images=$(\
+        for path in $@; \
+        do \
+            echo $path | cut -d '/' -f2,3 | sed 's/\//:/'; \
+        done \
+    )
+    paths=$@
+}
+
+if [ -z $1 ]; then
+    fill_arrays $(find ./ -mindepth 2 -type f)
+else
+    fill_arrays $(find ./$1 -type f)
+fi
+
+echo $paths
+echo $images

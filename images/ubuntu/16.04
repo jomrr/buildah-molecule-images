@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+# Get scripts parent path and change into it (if running from Makefile)
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "${parent_path}"
+
+# source common settings
+source ../common
+
+# Define container name, tag and repository name
+image_name=${PWD##*/}
+image_tag=$(basename "$0")
+repo_name="molecule-${image_name}"
+
+# Define packages to be installed
+packages="bash ca-certificates grep iproute2 locales procps python \
+    python-apt python-software-properties rsyslog sudo systemd \
+    systemd-sysv vim-tiny wget"
+
+# Create a container
+container=$(buildah from ${image_name}:${image_tag})
+
+# Label the container
+buildah config --label maintainer="${maintainer}" ${container}
+
+# Set environment variables
+buildah config --env container=docker ${container}
+buildah config --env LC_ALL=C ${container}
+buildah config --env DEBIAN_FRONTEND=noninteractive ${container}
+
+# Volume definitions
+buildah config --volume /sys/fs/cgroup ${container}
+
+# Provision the container
+buildah run ${container} apt-get update
+buildah run ${container} apt-get -y dist-upgrade
+buildah run ${container} apt-get install -y ${packages}
+buildah run ${container} apt-get clean
+buildah run ${container} rm -Rf /usr/share/doc 
+buildah run ${container} rm -Rf /usr/share/man
+buildah run ${container} rm -Rf /var/lib/apt/lists/*
+buildah run ${container} sed -i 's/^\($ModLoad imklog\)/# \1/' /etc/rsyslog.conf
+buildah run ${container} locale-gen en_US.UTF-8
+buildah run ${container} locale-gen de_DE.UTF-8
+
+# Do not require tty on ssh connection (to speed up ansible)
+buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
+    /etc/sudoers
+
+# CMD to run when starting container
+buildah config --cmd /lib/systemd/systemd ${container}
+
+# Save running container to image and squash all layers to one
+buildah commit --format docker --squash ${container} ${image_name}:${image_tag}
+
+# Lookup credentials via secret-tool and push image to docker registry
+buildah push --creds \
+    ${registry_user}:$(secret-tool lookup docker hub user ${registry_user}) \
+    localhost/${image_name}:${image_tag} \
+    docker://${registry_user}/molecule-${image_name}:${image_tag}
