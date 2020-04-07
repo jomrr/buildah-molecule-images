@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+source ./images/common
+
+for container in $containers
+do
+    buildah push --creds \
+        ${registry_user}:$(secret-tool lookup docker hub user \
+        ${registry_user}) localhost/$container \
+        docker://${registry_user}/molecule-$container
+    if [ $? == 0 ]; then
+        echo -e "\e[92mPushed image \033[1;92mmolecule-$container\e[0m\e[92m to docker registry \033[1;92m${registry_user}\e[0m"
+    else
+        echo -e "\e[93mSkipping image \e[91mmolecule-$container ...\e[0m"
+    fi
+done

@@ -44,9 +44,3 @@ buildah config --cmd /usr/lib/systemd/systemd ${container}
 
 # Save running container to image and squash all layers to one
 buildah commit --format docker --squash ${container} ${image_name}:${image_tag}
-
-# Lookup credentials via secret-tool and push image to docker registry
-buildah push --creds \
-    ${registry_user}:$(secret-tool lookup docker hub user ${registry_user}) \
-    localhost/${image_name}:${image_tag} \
-    docker://${registry_user}/molecule-${image_name}:${image_tag}

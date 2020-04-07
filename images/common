@@ -1,13 +1,24 @@
-maintainer="Jonas Mauer <jam@kabelmail.net"
-registry="docker.io"
-registry_user="jam82"
-systemd_clean="rm -f \
-    /lib/systemd/system/multi-user.target.wants/* \
-    /etc/systemd/system/*.wants/* \
-    /lib/systemd/system/local-fs.target.wants/* \
-    /lib/systemd/system/sockets.target.wants/*udev* \
-    /lib/systemd/system/sockets.target.wants/*initctl* \
-    /lib/systemd/system/basic.target.wants/* \
-    /lib/systemd/system/anaconda.target.wants/*; \
-    (cd /lib/systemd/system/sysinit.target.wants/; \
-    for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done)"
+#!/usr/bin/env bash
+
+declare -a containers
+declare -a paths
+declare -a service_manager
+
+declare -r maintainer="Jonas Mauer <jam@kabelmail.net"
+declare -r registry_user="jam82"
+
+fill_arrays() {
+    containers=$(\
+        for path in $@; \
+        do \
+            echo $path | cut -d '/' -f3,4 | sed 's/\//:/'; \
+        done \
+    )
+    paths=$@
+}
+
+if [ -z $1 ]; then
+    fill_arrays $(find ./images -mindepth 2 -type f 2>/dev/null || echo "")
+else
+    fill_arrays $(find ./images/$1 -type f 2>/dev/null | echo "")
+fi
