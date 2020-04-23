@@ -45,6 +45,11 @@ buildah run ${container} sed -i 's/^\($ModLoad imklog\)/# \1/' /etc/rsyslog.conf
 buildah run ${container} locale-gen en_US.UTF-8
 buildah run ${container} locale-gen de_DE.UTF-8
 
+# Fix High CPU usage on zombie `agetty` processes when using with `molecule` #9
+# https://github.com/geerlingguy/docker-ubuntu1804-ansible/issues/9
+buildah run ${container} rm -f /lib/systemd/system/systemd*udev*
+buildah run ${container} rm -f /lib/systemd/system/getty.target
+
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
