@@ -15,7 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl hostname passwd procps python3 sudo systemd \
+packages="bash curl hostname NetworkManager passwd procps python3 sudo systemd \
     vim-minimal wget which"
 
 # Create a container
