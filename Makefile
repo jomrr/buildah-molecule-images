@@ -6,15 +6,29 @@ image_path	:= "./images"
 
 images 		:= $(shell find $(image_path) -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 
-.PHONY: all $(images) config push test clean clean-unused clean-all
-
-all: $(images)
+.PHONY: $(images) all clean clean-unused clean-all config parallel push test
 
 $(images): config
 	@echo -e "\e[1m${start_run} : Starting build run ... \e[0m"
 	@find ./images/$@/ -mindepth 1 -maxdepth 1 -type f \
 	-exec echo -e "\e[93mLaunching {} ... \e[92m" \; -exec {} \;
 	@echo -e "\e[1m${start_run} : Finished build run. \e[0m"
+
+all: $(images)
+
+clean:
+	@echo -e "\e[93mCleaning up ... \e[0m"
+	@buildah unshare podman images --format "{{.ID}}" \
+		--filter label=maintainer="Jonas Mauer <jam@kabelmail.net" \
+		| xargs -r podman rmi -f
+
+clean-unused:
+	@echo -e "\e[93mCleaning up unused images ... \e[0m"
+	@podman image prune -af
+
+clean-all:
+	@echo -e "\e[93mCleaning up all images ... \e[0m"
+	@podman rmi -af
 
 config: clean
 	@for i in ${images} ; do \
@@ -34,17 +48,3 @@ push:
 test:
 	@echo $(images)
 	@./images/test
-
-clean:
-	@echo -e "\e[93mCleaning up ... \e[0m"
-	@buildah unshare podman images --format "{{.ID}}" \
-		--filter label=maintainer="Jonas Mauer <jam@kabelmail.net" \
-		| xargs -r podman rmi -f
-
-clean-unused:
-	@echo -e "\e[93mCleaning up unused images ... \e[0m"
-	@podman image prune -af
-
-clean-all:
-	@echo -e "\e[93mCleaning up all images ... \e[0m"
-	@podman rmi -af
