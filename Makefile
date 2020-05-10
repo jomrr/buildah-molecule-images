@@ -14,12 +14,18 @@ $(images): config
 	@echo -e "\e[1m${start_run} : Starting build run ... \e[0m"
 	@find ./images/$@/ -mindepth 1 -maxdepth 1 -type f \
 	-exec echo -e "\e[93mLaunching {} ... \e[92m" \; -exec {} \;
+	@echo -e "\e[1m${start_run} : Finished build run. \e[0m"
 
 config: clean
 	@for i in ${images} ; do \
 		mkdir -p ${image_path}/$$i ; \
 	done
 	@find ${image_path}/ -type f -exec chmod 755 {} +
+
+parallel: config
+	@echo -e "\e[1m${start_run} : Starting parallel build run ... \e[0m"
+	@find ./images/ -mindepth 2 -maxdepth 2 -type f | parallel "{}"
+	@echo -e "\e[1m${start_run} : Finished parallel build run. \e[0m"
 
 push:
 	@echo -e "\e[93mPushing images ... \e[0m"
