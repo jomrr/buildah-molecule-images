@@ -2,7 +2,6 @@
 
 declare -a containers
 declare -a paths
-declare -a service_manager
 
 declare -r maintainer="Jonas Mauer <jam@kabelmail.net"
 declare -r registry_user="jam82"
