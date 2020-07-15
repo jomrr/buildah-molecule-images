@@ -15,7 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl openrc python sudo vim wget which"
+packages="bash curl openrc python3 sudo vim wget which"
 
 # Create a container
 container=$(buildah from ${image_name}:${image_tag})
