@@ -31,10 +31,10 @@ buildah config --env container=docker ${container}
 buildah config --volume /sys/fs/cgroup ${container}
 
 # Provision the container
-buildah run ${container} dnf -y update
-buildah run ${container} dnf -y install initscripts
-buildah run ${container} dnf -y install ${packages}
-buildah run ${container} dnf clean all
+buildah run ${container} yum -y update
+buildah run ${container} yum -y install initscripts
+buildah run ${container} yum -y install ${packages}
+buildah run ${container} yum clean all
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \

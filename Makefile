@@ -36,7 +36,7 @@ config: clean
 
 parallel: config
 	@echo -e "\e[1m$(shell date --rfc-3339 "ns") : Starting parallel build run ... \e[0m"
-	@find ./images/ -mindepth 2 -maxdepth 2 -type f | parallel "{}"
+	@find ./images/ -mindepth 2 -maxdepth 2 -type f | parallel --load 80%
 	@echo -e "\e[1m$(shell date --rfc-3339 "ns") : Finished parallel build run. \e[0m"
 
 push:
