@@ -7,7 +7,7 @@ images 		:= $(shell find $(image_path) -mindepth 1 -maxdepth 1 -type d -exec bas
 .PHONY: $(images) all clean clean-unused clean-all config parallel push test
 
 $(images): config
-	@./images/images $@
+	@./images/images $@ || exit 1
 
 all: $(images)
 

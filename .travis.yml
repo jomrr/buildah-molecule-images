@@ -8,7 +8,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq -y software-properties-common podman buildah libsecret-tools
   - sudo mkdir -p /etc/containers
-  - sudo sh -c 'echo -e "[registries.search]\nregistries = [\"docker.io\"]" > /etc/containers/registries.conf'
+  - sudo sh -c 'echo "[registries.search]\nregistries = [\"docker.io\"]" > /etc/containers/registries.conf'
   - cat /etc/containers/registries.conf
 
 env:
