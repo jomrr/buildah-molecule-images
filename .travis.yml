@@ -16,21 +16,6 @@ before_install:
   - sudo mkdir -p /etc/containers
   - sudo sh -c 'echo -e "[registries.search]\nregistries = [\"docker.io\"]" > /etc/containers/registries.conf'
 
-env:
-  - build_distribution=alpine
-  - build_distribution=amazonlinux
-  - build_distribution=archlinux
-  - build_distribution=centos
-  - build_distribution=debian
-  - build_distribution=fedora
-  - build_distribution=opensuse
-  - build_distribution=oraclelinux
-  - build_distribution=ubuntu
-
-script: 
-  - make $build_distribution
-
-jobs:
-  include:
-    - stage: push
-      script: make push
+script:
+  - make all
+  - make push
