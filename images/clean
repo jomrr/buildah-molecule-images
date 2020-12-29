@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+source ./images/common
+
+echo -e "\e[93m$(date --rfc-3339 "ns") : Cleaning up ... \e[0m"
+
+buildah unshare podman images --format "{{.ID}}" \
+	--filter label=maintainer="${maintainer}" \
+	| xargs -r podman rmi -f
+
+echo -e "\e[93m$(date --rfc-3339 "ns") : Finished cleaning up. \e[0m"

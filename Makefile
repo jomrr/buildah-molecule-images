@@ -15,18 +15,17 @@ $(images): config
 all: $(images)
 
 clean:
-	@echo -e "\e[93mCleaning up ... \e[0m"
-	@buildah unshare podman images --format "{{.ID}}" \
-		--filter label=maintainer="Jonas Mauer <jam@kabelmail.net" \
-		| xargs -r podman rmi -f
+	@./images/clean
 
 clean-unused:
-	@echo -e "\e[93mCleaning up unused images ... \e[0m"
+	@echo -e "\e[93m$(shell date --rfc-3339 "ns") : Cleaning up unused images ... \e[0m"
 	@podman image prune -af
+	@echo -e "\e[93m$(shell date --rfc-3339 "ns") : Finished cleaning up unused images. \e[0m"
 
 clean-all:
-	@echo -e "\e[93mCleaning up all images ... \e[0m"
+	@echo -e "\e[93m$(shell date --rfc-3339 "ns") : Cleaning up all images ... \e[0m"
 	@podman rmi -af
+	@echo -e "\e[93m$(shell date --rfc-3339 "ns") : Finished cleaning up all images. \e[0m"
 
 config: clean
 	@for i in ${images} ; do \
@@ -40,7 +39,6 @@ parallel: config
 	@echo -e "\e[1m$(shell date --rfc-3339 "ns") : Finished parallel build run. \e[0m"
 
 push:
-	@echo -e "\e[93mPushing images ... \e[0m"
 	@./images/push
 
 test:

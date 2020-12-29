@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
 
+set -o errexit
+
 source ./images/common
 
-for container in $containers
+echo -e "\e[93m$(date --rfc-3339 "ns") : Pushing images ... \e[0m"
+
+podman_images=$(podman images --format "{{.Repository}}:{{.Tag}}" --filter label=maintainer="${maintainer}")
+
+for podman_image in ${podman_images}
 do
+    declare -r image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
+    declare -r tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
     buildah push --creds \
-        ${registry_user}:$(secret-tool lookup docker hub user \
-        ${registry_user}) localhost/$container \
-        docker://${registry_user}/molecule-$container
+        ${maintainer}:${DOCKER_REGISTRY_SECRET} \
+        ${podman_image} docker://${maintainer}/molecule-${image}
     if [ $? == 0 ]; then
-        echo -e "\e[92mPushed image \033[1;92mmolecule-$container\e[0m\e[92m to docker registry \033[1;92m${registry_user}\e[0m"
+        echo -e "\e[92m$(date --rfc-3339 "ns") : Pushed image \033[1;92mlocalhost/$image:${tag}\e[0m\e[92m to \033[1;92mdocker.io/${maintainer}/molecule-${image}:${tag}\e[0m"
     else
-        echo -e "\e[93mSkipping image \e[91mmolecule-$container ...\e[0m"
+        echo -e "\e[93m$(date --rfc-3339 "ns") : Could not push image \e[91mmolecule-${image}:${tag} ... \e[0m"
     fi
 done
+
+echo -e "\e[93m$(date --rfc-3339 "ns") : Finished pushing images. \e[0m"

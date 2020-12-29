@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o errexit
+
 #SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source ./images/common
 

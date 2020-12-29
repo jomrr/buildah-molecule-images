@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
+set -o errexit
+
 declare -a containers
 declare -a paths
 
-declare -r maintainer="Jonas Mauer <jam@kabelmail.net"
-declare -r registry_user="jam82"
+declare -r maintainer="jam82"
+
+if [ -z ${DOCKER_REGISTRY_SECRET} ]; then
+    DOCKER_REGISTRY_SECRET="$(secret-tool lookup docker hub user ${maintainer})"
+fi
 
 fill_arrays() {
     containers=$(\
