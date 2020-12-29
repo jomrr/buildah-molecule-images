@@ -25,9 +25,4 @@ env:
 
 script:
   - make $build_distribution
-
-jobs:
-  include:
-    - stage: push
-      script: make push
-      env: build_distribution=""
+  - make push
