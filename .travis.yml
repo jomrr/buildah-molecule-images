@@ -10,6 +10,7 @@ before_install:
   - sudo mkdir -p /etc/containers
   - sudo sh -c 'echo "[registries.search]\nregistries = [\"docker.io\"]" > /etc/containers/registries.conf'
   - cat /etc/containers/registries.conf
+  - podman info
 
 env:
   - build_distribution=alpine

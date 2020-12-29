@@ -7,6 +7,7 @@ source ./images/common
 log_action "Starting build run ..."
 
 find ./images/$@/ -mindepth 1 -maxdepth 1 -type f \
-    -exec echo -e "${green}Launching {} ...${end}" \; -exec {} \; || exit
+    -exec echo -e "${green}Launching {} ...${end}" \; \
+    -exec {} -exec "|| exit 1" \;
 
 log_action "Finished build run."
