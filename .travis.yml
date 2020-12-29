@@ -13,6 +13,7 @@ before_install:
   - podman info
 
 env:
+  - PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
   - build_distribution=alpine
   - build_distribution=amazonlinux
   - build_distribution=archlinux
