@@ -9,6 +9,7 @@ before_install:
   - sudo apt-get install -qq -y software-properties-common podman buildah libsecret-tools
   - sudo mkdir -p /etc/containers
   - sudo sh -c 'echo -e "[registries.search]\nregistries = [\"docker.io\"]" > /etc/containers/registries.conf'
+  - cat /etc/containers/registries.conf
 
 env:
   - build_distribution=alpine
@@ -21,7 +22,7 @@ env:
   - build_distribution=oraclelinux
   - build_distribution=ubuntu
 
-script: 
+script:
   - make $build_distribution
 
 jobs:
