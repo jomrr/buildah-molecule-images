@@ -18,7 +18,7 @@ repo_name="molecule-${image_name}"
 packages="bash curl openrc python sudo vim wget which"
 
 # Create a container
-container=$(buildah from ${image_name}:${image_tag})
+container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
 
 # Label the container
 buildah config --label maintainer="${maintainer}" ${container}

@@ -4,22 +4,22 @@ set -o errexit
 
 source ./images/common
 
-echo -e "\e[93m$(date --rfc-3339 "ns") : Pushing images ... \e[0m"
+log_action "Pushing images ..."
 
 podman_images=$(podman images --format "{{.Repository}}:{{.Tag}}" --filter label=maintainer="${maintainer}")
 
 for podman_image in ${podman_images}
 do
-    declare -r image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
-    declare -r tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
+    declare image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
+    declare tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
+    declare pushed_source="localhost/$image:${tag}\e[0m\e[92m"
+    declare pushed_target="docker.io/${maintainer}/molecule-${image}:${tag}"
+
     buildah push --creds \
         ${maintainer}:${DOCKER_REGISTRY_SECRET} \
-        ${podman_image} docker://${maintainer}/molecule-${image}
-    if [ $? == 0 ]; then
-        echo -e "\e[92m$(date --rfc-3339 "ns") : Pushed image \033[1;92mlocalhost/$image:${tag}\e[0m\e[92m to \033[1;92mdocker.io/${maintainer}/molecule-${image}:${tag}\e[0m"
-    else
-        echo -e "\e[93m$(date --rfc-3339 "ns") : Could not push image \e[91mmolecule-${image}:${tag} ... \e[0m"
-    fi
+        ${podman_image} docker://${maintainer}/molecule-${image} \
+    && log_success "Pushed image ${greenb}${pushed_source}${green} to ${greenb}${pushed_target}${green}." \
+    || log_error "Could not push image  to ${redb}${pushed_target}${red}."
 done
 
-echo -e "\e[93m$(date --rfc-3339 "ns") : Finished pushing images. \e[0m"
+log_action "Finished pushing images."

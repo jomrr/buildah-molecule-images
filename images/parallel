@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+source ./images/common
+
+log_action "Starting parallel build run ..."
+
+find ./images/ -mindepth 2 -maxdepth 2 -type f | parallel --load 80%
+
+log_action "Finished parallel build run."

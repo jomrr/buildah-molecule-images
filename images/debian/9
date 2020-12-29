@@ -20,7 +20,7 @@ packages="apt-utils bash ca-certificates dh-systemd grep iproute2 locales \
     vim-tiny wget"
 
 # Create a container
-container=$(buildah from ${image_name}:${image_tag})
+container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
 
 # Label the container
 buildah config --label maintainer="${maintainer}" ${container}

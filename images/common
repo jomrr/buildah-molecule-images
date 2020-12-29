@@ -5,11 +5,22 @@ set -o errexit
 declare -a containers
 declare -a paths
 
+# if you change default_registry also change push logic, as it pushes to docker
+declare -r default_registry="docker.io"
 declare -r maintainer="jam82"
 
 if [ -z ${DOCKER_REGISTRY_SECRET} ]; then
-    DOCKER_REGISTRY_SECRET="$(secret-tool lookup docker hub user ${maintainer})"
+    declare -r DOCKER_REGISTRY_SECRET="$(secret-tool lookup docker hub user ${maintainer})"
 fi
+
+# Colors
+declare -r end="\033[0m"
+declare -r red="\033[0;31m"
+declare -r redb="\033[1;31m"
+declare -r green="\033[0;32m"
+declare -r greenb="\033[1;32m"
+declare -r yellow="\033[0;33m"
+declare -r yellowb="\033[1;33m"
 
 fill_arrays() {
     containers=$(\
@@ -19,6 +30,27 @@ fill_arrays() {
         done \
     )
     paths=$@
+}
+
+# logging functions
+log_date() { 
+    echo -e "${end}$(date --rfc-3339 "ns") : $1"
+}
+
+log() {
+    log_date "$1"
+}
+
+log_action() {
+    log "${yellow}${1}${end}"
+}
+
+log_error() { 
+    log "${red}${1}${end}"
+}
+
+log_success() {
+    log "${green}${1}${end}"
 }
 
 if [ -z $1 ]; then

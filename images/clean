@@ -4,10 +4,28 @@ set -o errexit
 
 source ./images/common
 
-echo -e "\e[93m$(date --rfc-3339 "ns") : Cleaning up ... \e[0m"
-
-buildah unshare podman images --format "{{.ID}}" \
+clean() {
+	buildah unshare podman images --format "{{.ID}}" \
 	--filter label=maintainer="${maintainer}" \
 	| xargs -r podman rmi -f
+}
 
-echo -e "\e[93m$(date --rfc-3339 "ns") : Finished cleaning up. \e[0m"
+clean_unused() {
+	podman image prune -af
+}
+
+clean_all() {
+	podman rmi -af
+}
+
+log_action "Started cleaning up ${1:-"own"} images ..."
+
+if [ -z ${1} ]; then
+	clean
+elif [ ${1} == "all" ]; then
+	clean_all
+else
+	clean_unused
+fi
+
+log_action "Finished cleaning up ${1:-"own"} images ..."
