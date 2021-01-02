@@ -33,6 +33,18 @@ buildah config --volume /sys/fs/cgroup ${container}
 buildah run ${container} zypper -n in ${packages}
 buildah run ${container} zypper clean
 
+# Fix https://github.com/jam82/buildah-molecule-images/issues/3
+# Fix High CPU usage on zombie `agetty` processes when using with `molecule` #9
+# see https://github.com/geerlingguy/docker-ubuntu1804-ansible/issues/9
+buildah run ${container} rm -f /usr/lib/systemd/system/systemd*udev*
+buildah run ${container} rm -f /usr/lib/systemd/system/getty.target
+buildah run ${container} rm -f /usr/lib/systemd/system/dev-hugepages.mount
+buildah run ${container} rm -f /usr/lib/systemd/system/proc-sys-fs-binfmt_misc.automount
+buildah run ${container} rm -f /usr/lib/systemd/system/sysinit.target.wants/proc-sys-fs-binfmt_misc.automount
+buildah run ${container} rm -f /usr/lib/systemd/system/systemd-remount-fs.service
+buildah run ${container} rm -f /usr/lib/systemd/system/systemd-sysctl.service
+buildah run ${container} rm -f /usr/lib/systemd/system/systemd-tmpfiles-setup.service
+
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers

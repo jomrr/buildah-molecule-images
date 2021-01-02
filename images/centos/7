@@ -15,7 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl hostname passwd python sudo systemd \
+packages="bash curl hostname initscripts passwd python sudo systemd \
     vim-minimal wget which yum-plugin-ovl"
 
 # Create a container
@@ -36,6 +36,27 @@ buildah run ${container} yum -y update
 buildah run ${container} yum -y install ${packages}
 buildah run ${container} sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf
 buildah run ${container} yum clean all
+
+# see https://hub.docker.com/_/centos/
+# Fix https://github.com/jam82/buildah-molecule-images/issues/3
+buildah run ${container} find /lib/systemd/system/sysinit.target.wants/ \
+    -type f -not -name systemd-tmpfiles-setup.service -delete
+buildah run ${container} rm -f /lib/systemd/system/multi-user.target.wants/*
+buildah run ${container} rm -f /etc/systemd/system/*.wants/*
+buildah run ${container} rm -f /lib/systemd/system/local-fs.target.wants/*
+buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*udev*
+buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*initctl*
+buildah run ${container} rm -f /lib/systemd/system/basic.target.wants/*
+buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/*
+buildah run ${container} rm -f /lib/systemd/system/kdump.service
+buildah run ${container} rm -f /lib/systemd/system/systemd*udev*
+buildah run ${container} rm -f /lib/systemd/system/getty.target
+buildah run ${container} rm -f /lib/systemd/system/dev-hugepages.mount
+buildah run ${container} rm -f /lib/systemd/system/proc-sys-fs-binfmt_misc.automount
+buildah run ${container} rm -f /usr/lib/systemd/system/sysinit.target.wants/proc-sys-fs-binfmt_misc.automount
+buildah run ${container} rm -f /lib/systemd/system/systemd-remount-fs.service
+buildah run ${container} rm -f /lib/systemd/system/systemd-sysctl.service
+buildah run ${container} rm -f /lib/systemd/system/systemd-tmpfiles-setup.service
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \

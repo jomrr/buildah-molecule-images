@@ -29,11 +29,18 @@ buildah config --env container=docker ${container}
 
 # Volume definitions
 buildah config --volume /sys/fs/cgroup ${container}
+buildah config --volume /sys/fs/fuse ${container}
 
 # Provision the container
 buildah run ${container} pacman -Syyu --noconfirm
 buildah run ${container} pacman -S --noconfirm ${packages}
 buildah run ${container} pacman -Scc --noconfirm
+
+# Fix https://github.com/jam82/buildah-molecule-images/issues/3
+buildah run ${container} rm -f /lib/systemd/system/systemd*udev*
+buildah run ${container} rm -f /lib/systemd/system/getty.target
+buildah run ${container} rm -f /lib/systemd/system/proc-sys-fs-binfmt_misc.automount
+buildah run ${container} rm -f /usr/lib/systemd/system/sysinit.target.wants/proc-sys-fs-binfmt_misc.automount
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
