@@ -28,7 +28,6 @@ buildah config --env container=docker ${container}
 
 # Volume definitions
 buildah config --volume /sys/fs/cgroup ${container}
-buildah config --volume /run ${container}
 
 # Provision the container
 buildah run ${container} zypper -n in ${packages}
