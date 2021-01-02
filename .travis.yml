@@ -13,15 +13,18 @@ before_install:
   - podman info
 
 env:
-  - build_distribution=alpine PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=amazonlinux PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=archlinux PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=centos PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=debian PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=fedora PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=opensuse PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=oraclelinux PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  - build_distribution=ubuntu PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
+  global:
+    PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
+  jobs:
+  - build_distribution=alpine 
+  - build_distribution=amazonlinux
+  - build_distribution=archlinux
+  - build_distribution=centos
+  - build_distribution=debian
+  - build_distribution=fedora
+  - build_distribution=opensuse
+  - build_distribution=oraclelinux
+  - build_distribution=ubuntu
 
 script:
   - make $build_distribution
