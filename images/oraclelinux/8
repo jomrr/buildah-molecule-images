@@ -35,21 +35,32 @@ buildah run ${container} yum -y update
 buildah run ${container} yum -y install initscripts
 buildah run ${container} yum -y install ${packages}
 buildah run ${container} yum clean all
+buildah run ${container} rm -rf /usr/share/doc/*
+buildah run ${container} rm -rf /usr/share/man/*
+buildah run ${container} rm -rf /var/lib/apt/lists/*
+buildah run ${container} rm -rf /tmp/*
+buildah run ${container} rm -rf /var/tmp/*
 
-# see https://hub.docker.com/_/centos/
 # Fix https://github.com/jam82/buildah-molecule-images/issues/3
-buildah run ${container} find /lib/systemd/system/sysinit.target.wants/ \
-    -type f -not -name systemd-tmpfiles-setup.service -delete
-buildah run ${container} rm -f /lib/systemd/system/multi-user.target.wants/*
-buildah run ${container} rm -f /etc/systemd/system/*.wants/*
-buildah run ${container} rm -f /lib/systemd/system/local-fs.target.wants/*
-buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*udev*
-buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*initctl*
-buildah run ${container} rm -f /lib/systemd/system/basic.target.wants/*
-buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/*
-buildah run ${container} rm -f /lib/systemd/system/kdump.service
-buildah run ${container} rm -f /lib/systemd/system/proc-sys-fs-binfmt_misc.automount
-buildah run ${container} rm -f /usr/lib/systemd/system/sysinit.target.wants/proc-sys-fs-binfmt_misc.automount
+# adopted from https://github.com/bdellegrazie/docker-debian-systemd/
+buildah run ${container} find /etc/systemd/system /lib/systemd/system \
+    -path '*.wants/*' \
+    -not -name '*dbus*' \
+    -not -name '*journald*' \
+    -not -name '*systemd-tmpfiles*' \
+    -not -name '*systemd-user-sessions*' \
+    -delete
+
+buildah run ${container} systemctl set-default multi-user.target
+
+buildah run ${container} systemctl mask \
+    dev-hugepages.mount \
+    getty.service \
+    kdump.service \
+    proc-sys-fs-binfmt_misc.automount \
+    sys-fs-fuse-connections.mount \
+    systemd-tmpfiles-setup.service \
+    systemd-udev-trigger.service
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \

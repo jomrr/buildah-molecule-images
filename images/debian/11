@@ -15,27 +15,32 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl hostname initscripts passwd python sudo systemd \
-    vim-minimal wget which yum-plugin-ovl"
+packages="apt-utils bash ca-certificates grep iproute2 locales \
+    python3 python3-apt rsyslog sudo systemd systemd-sysv \
+    vim-tiny wget"
 
 # Create a container
-container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
+container=$(buildah from --format=docker ${default_registry}/${image_name}:bullseye)
 
 # Label the container
 buildah config --label maintainer="${maintainer}" ${container}
 
 # Set environment variables
 buildah config --env container=docker ${container}
+buildah config --env LC_ALL=C ${container}
+buildah config --env DEBIAN_FRONTEND=noninteractive ${container}
 
 # Volume definitions
 buildah config --volume /sys/fs/cgroup ${container}
 
 # Provision the container
-buildah run ${container} yum makecache fast
-buildah run ${container} yum -y update
-buildah run ${container} yum -y install ${packages}
-buildah run ${container} sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf
-buildah run ${container} yum clean all
+buildah run ${container} apt-get update
+buildah run ${container} apt-get -y dist-upgrade
+buildah run ${container} apt-get install -y ${packages}
+buildah run ${container} apt-get clean
+buildah run ${container} sed -i 's/^\($ModLoad imklog\)/# \1/' /etc/rsyslog.conf
+buildah run ${container} locale-gen en_US.UTF-8
+buildah run ${container} locale-gen de_DE.UTF-8
 buildah run ${container} rm -rf /usr/share/doc/*
 buildah run ${container} rm -rf /usr/share/man/*
 buildah run ${container} rm -rf /var/lib/apt/lists/*
@@ -56,19 +61,14 @@ buildah run ${container} systemctl set-default multi-user.target
 
 buildah run ${container} systemctl mask \
     dev-hugepages.mount \
-    getty.service \
-    kdump.service \
-    proc-sys-fs-binfmt_misc.automount \
-    sys-fs-fuse-connections.mount \
-    systemd-tmpfiles-setup.service \
-    systemd-udev-trigger.service
+    sys-fs-fuse-connections.mount
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
 
 # CMD to run when starting container
-buildah config --cmd /usr/lib/systemd/systemd ${container}
+buildah config --cmd /lib/systemd/systemd ${container}
 
 # Save running container to image and squash all layers to one
 buildah commit --format docker --squash ${container} ${image_name}:${image_tag}

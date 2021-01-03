@@ -38,17 +38,30 @@ buildah run ${container} apt-get update
 buildah run ${container} apt-get -y dist-upgrade
 buildah run ${container} apt-get install -y ${packages}
 buildah run ${container} apt-get clean
-buildah run ${container} rm -Rf /usr/share/doc 
-buildah run ${container} rm -Rf /usr/share/man
-buildah run ${container} rm -Rf /var/lib/apt/lists/*
 buildah run ${container} sed -i 's/^\($ModLoad imklog\)/# \1/' /etc/rsyslog.conf
 buildah run ${container} locale-gen en_US.UTF-8
 buildah run ${container} locale-gen de_DE.UTF-8
+buildah run ${container} rm -rf /usr/share/doc/*
+buildah run ${container} rm -rf /usr/share/man/*
+buildah run ${container} rm -rf /var/lib/apt/lists/*
+buildah run ${container} rm -rf /tmp/*
+buildah run ${container} rm -rf /var/tmp/*
 
-# Fix High CPU usage on zombie `agetty` processes when using with `molecule` #9
-# https://github.com/geerlingguy/docker-ubuntu1804-ansible/issues/9
-buildah run ${container} rm -f /lib/systemd/system/systemd*udev*
-buildah run ${container} rm -f /lib/systemd/system/getty.target
+# Fix https://github.com/jam82/buildah-molecule-images/issues/3
+# adopted from https://github.com/bdellegrazie/docker-debian-systemd/
+buildah run ${container} find /etc/systemd/system /lib/systemd/system \
+    -path '*.wants/*' \
+    -not -name '*dbus*' \
+    -not -name '*journald*' \
+    -not -name '*systemd-tmpfiles*' \
+    -not -name '*systemd-user-sessions*' \
+    -delete
+    
+buildah run ${container} systemctl set-default multi-user.target
+
+buildah run ${container} systemctl mask \
+    dev-hugepages.mount \
+    sys-fs-fuse-connections.mount
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \

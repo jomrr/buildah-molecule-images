@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+source ./images/common
+
+podman_images=$(podman images --format "{{.ID}}:{{.Repository}}:{{.Tag}}" --filter label=maintainer="${maintainer}" | grep localhost)
+
+for podman_image in ${podman_images}
+do
+    declare id=$(echo ${podman_image} | cut -d ":" -f1)
+    declare image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
+    declare tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
+    echo "podman_image=${podman_image}"
+    echo "buildah push ${id} docker-daemon:${maintainer}/${image}:${tag}"
+    buildah push ${id} docker-daemon:${maintainer}/${image}:${tag} || true
+done
