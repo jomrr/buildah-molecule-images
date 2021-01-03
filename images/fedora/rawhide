@@ -15,7 +15,8 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl initscripts python sudo vim-minimal wget which"
+packages="bash curl findutils hostname passwd procps python3 sudo systemd \
+    vim-minimal wget which"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
@@ -30,17 +31,37 @@ buildah config --env container=docker ${container}
 buildah config --volume /sys/fs/cgroup ${container}
 
 # Provision the container
-buildah run ${container} yum makecache fast
-buildah run ${container} yum -y update
-buildah run ${container} yum -y install ${packages}
-buildah run ${container} yum clean all
+buildah run ${container} dnf -y update
+buildah run ${container} dnf -y install ${packages}
+buildah run ${container} dnf clean all
+
+# Fix https://github.com/jam82/buildah-molecule-images/issues/3
+# adopted from https://github.com/bdellegrazie/docker-debian-systemd/
+buildah run ${container} find /etc/systemd/system /lib/systemd/system \
+    -path '*.wants/*' \
+    -not -name '*dbus*' \
+    -not -name '*journald*' \
+    -not -name '*systemd-tmpfiles*' \
+    -not -name '*systemd-user-sessions*' \
+    -delete
+
+buildah run ${container} systemctl set-default multi-user.target
+
+buildah run ${container} systemctl mask \
+    dev-hugepages.mount \
+    getty.service \
+    kdump.service \
+    proc-sys-fs-binfmt_misc.automount \
+    sys-fs-fuse-connections.mount \
+    systemd-tmpfiles-setup.service \
+    systemd-udev-trigger.service
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
 
 # CMD to run when starting container
-buildah config --cmd /sbin/init ${container}
+buildah config --cmd /usr/lib/systemd/systemd ${container}
 
 # Save running container to image and squash all layers to one
 buildah commit --format docker --squash ${container} ${image_name}:${image_tag}

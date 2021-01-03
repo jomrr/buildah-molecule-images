@@ -33,6 +33,29 @@ buildah config --volume /sys/fs/cgroup ${container}
 buildah run ${container} zypper -n in ${packages}
 buildah run ${container} zypper clean
 
+# Fix https://github.com/jam82/buildah-molecule-images/issues/3
+# adopted from https://github.com/bdellegrazie/docker-debian-systemd/
+buildah run ${container} find /etc/systemd/system /usr/lib/systemd/system \
+    -path '*.wants/*' \
+    -not -name '*dbus*' \
+    -not -name '*journald*' \
+    -not -name '*systemd-tmpfiles*' \
+    -not -name '*systemd-user-sessions*' \
+    -delete
+
+buildah run ${container} systemctl set-default multi-user.target
+
+buildah run ${container} systemctl mask \
+    dev-hugepages.mount \
+    getty.service \
+    kdump.service \
+    proc-sys-fs-binfmt_misc.automount \
+    sys-fs-fuse-connections.mount \
+    systemd-journald-audit.socket \
+    systemd-tmpfiles-setup.service \
+    systemd-tmpfiles-setup-dev.service \
+    systemd-udev-trigger.service
+
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
