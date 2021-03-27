@@ -17,7 +17,7 @@ do
 
     buildah push --creds \
         ${maintainer}:${DOCKER_REGISTRY_SECRET} \
-        ${podman_image} docker://${maintainer}/molecule-${image} \
+        ${podman_image} docker://${maintainer}/molecule-${image}:${tag} \
     && log_success "Pushed image ${greenb}${pushed_source}${green} to ${greenb}${pushed_target}${green}." \
     || log_error "Could not push image  to ${redb}${pushed_target}${red}."
 done
