@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+set -o errexit
+
+# Get scripts parent path and change into it (if running from Makefile)
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "${parent_path}"
+
+# source common settings
+source ../common
+
+# Define container name, tag and repository name
+image_name=${PWD##*/}
+image_tag=$(basename "$0")
+repo_name="molecule-${image_name}"
+
+# Define packages to be installed
+packages="bash curl openrc python3 sudo vim wget which"
+
+# Create a container
+container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
+
+# Label the container
+buildah config --label maintainer="${maintainer}" ${container}
+
+# Set environment variables
+buildah config --env container=docker ${container}
+
+# Provision the container
+buildah run ${container} apk upgrade
+buildah run ${container} apk add --no-cache ${packages}
+buildah run ${container} mkdir -p /etc/network/
+buildah run ${container} sh -c \
+    'echo -e "auto lo\niface lo inet loopback" | tee /etc/network/interfaces'
+buildah run ${container} sed -ie '$arc_provide="loopback net"' /etc/rc.conf
+buildah run ${container} rm -rf "/tmp/"*
+buildah run ${container} sed -i -e \
+    's/#rc_sys=""/rc_sys="lxc"/g' -e 's/^#\(rc_logger="YES"\)$/\1/' /etc/rc.conf
+buildah run ${container} sed -i '/tty/d' /etc/inittab
+buildah run ${container} sed -i \
+    's/hostname $opts/# hostname $opts/g' /etc/init.d/hostname
+buildah run ${container} sed -i \
+    's/mount -t tmpfs/# mount -t tmpfs/g' /lib/rc/sh/init.sh
+
+# Do not require tty on ssh connection (to speed up ansible)
+buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
+    /etc/sudoers
+
+# CMD to run when starting container
+buildah config --cmd /sbin/init ${container}
+
+# Save running container to image and squash all layers to one
+buildah commit --format docker --squash ${container} ${image_name}:${image_tag}
