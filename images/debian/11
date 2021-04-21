@@ -17,7 +17,7 @@ repo_name="molecule-${image_name}"
 # Define packages to be installed
 packages="apt-utils bash ca-certificates grep iproute2 locales \
     python3 python3-apt rsyslog sudo systemd systemd-sysv \
-    vim-tiny wget"
+    vim wget"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:bullseye)

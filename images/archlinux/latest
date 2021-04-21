@@ -16,7 +16,7 @@ repo_name="molecule-${image_name}"
 
 # Define packages to be installed
 packages="awk bash curl dbus grep procps-ng python3 sed sudo \
-    systemd-sysvcompat vim-minimal wget which"
+    systemd-sysvcompat vim wget which"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:base)
