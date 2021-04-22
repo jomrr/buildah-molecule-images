@@ -16,7 +16,7 @@ repo_name="molecule-${image_name}"
 
 # Define packages to be installed
 packages="bash curl hostname iproute passwd python sudo systemd \
-    vim-minimal wget which yum-plugin-ovl"
+    vim wget which yum-plugin-ovl"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})

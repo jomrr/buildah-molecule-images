@@ -15,8 +15,8 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl findutils hostname passwd procps python3 sudo systemd \
-    vim-minimal wget which"
+packages="bash curl findutils hostname iproute passwd procps python3 sudo \ 
+    systemd vim wget which"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
