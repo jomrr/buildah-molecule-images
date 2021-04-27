@@ -16,16 +16,20 @@ env:
   global:
     PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
   jobs:
-  - build_distribution=alpine 
-  - build_distribution=amazonlinux
-  - build_distribution=archlinux
-  - build_distribution=centos
-  - build_distribution=debian
-  - build_distribution=fedora
-  - build_distribution=opensuse
-  - build_distribution=oraclelinux
-  - build_distribution=ubuntu
+    - build_distribution=alpine 
+    - build_distribution=amazonlinux
+    - build_distribution=archlinux
+    - build_distribution=centos
+    - build_distribution=debian
+    - build_distribution=fedora
+    - build_distribution=opensuse
+    - build_distribution=oraclelinux
+    - build_distribution=ubuntu
 
-script:
-  - make $build_distribution
-  - make push
+jobs:
+  include:
+    - stage: build
+      script: make $build_distribution
+    - stage: deploy
+      script: make push
+      if: branch = master   
