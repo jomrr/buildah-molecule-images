@@ -15,7 +15,7 @@ before_install:
 env:
   global:
     PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  jobs:
+  matrix:
     - build_distribution=alpine 
     - build_distribution=amazonlinux
     - build_distribution=archlinux
