@@ -15,21 +15,19 @@ before_install:
 env:
   global:
     PATH="$PATH:/usr/lib/cri-o-runc/sbin/"
-  matrix:
-    - build_distribution=alpine 
-    - build_distribution=amazonlinux
-    - build_distribution=archlinux
-    - build_distribution=centos
-    - build_distribution=debian
-    - build_distribution=fedora
-    - build_distribution=opensuse
-    - build_distribution=oraclelinux
-    - build_distribution=ubuntu
 
 jobs:
   include:
     - stage: build
-      script: make $build_distribution
+      script: make alpine 
+    - script: make amazonlinux
+    - script: make archlinux
+    - script: make centos
+    - script: make debian
+    - script: make fedora
+    - script: make opensuse
+    - script: make oraclelinux
+    - script: make ubuntu
     - stage: deploy
       script: make push
       if: branch = master   
