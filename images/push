@@ -12,13 +12,14 @@ for podman_image in ${podman_images}
 do
     declare image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
     declare tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
-    declare pushed_source="localhost/$image:${tag}\e[0m\e[92m"
+    declare pushed_source="localhost/$image:${tag}"
     declare pushed_target="docker.io/${maintainer}/molecule-${image}:${tag}"
 
+    log_action "Pushing image ${pushed_source} to ${pushed_target}..." && \
     buildah push --creds \
         ${maintainer}:${DOCKER_REGISTRY_SECRET} \
         ${podman_image} docker://${maintainer}/molecule-${image}:${tag} \
-    && log_success "Pushed image ${greenb}${pushed_source}${green} to ${greenb}${pushed_target}${green}." \
+    && log_success "${green}Pushed image ${greenb}${pushed_source}${green} to ${greenb}${pushed_target}${green}." \
     || log_error "Could not push image  to ${redb}${pushed_target}${red}."
 done
 
