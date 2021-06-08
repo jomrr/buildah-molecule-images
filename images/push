@@ -13,7 +13,7 @@ do
     declare image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
     declare tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
     declare pushed_source="localhost/$image:${tag}"
-    declare pushed_target="docker.io/${maintainer}/molecule-${image}:${tag}"
+    declare pushed_target="${default_registry}/${maintainer}/molecule-${image}:${tag}"
 
     log_action "Pushing image ${pushed_source} to ${pushed_target}..." && \
     buildah push --creds \
