@@ -1,5 +1,7 @@
 # buildah-molecule-images
 
+![GitHub](https://img.shields.io/github/license/jam82/buildah-molecule-images) ![GitHub last commit](https://img.shields.io/github/last-commit/jam82/buildah-molecule-images) ![GitHub issues](https://img.shields.io/github/issues-raw/jam82/buildah-molecule-images) ![Travis (.com) branch](https://img.shields.io/travis/com/jam82/buildah-molecule-images/main?label=build)
+
 Makefile-based creation of container images with buildah and podman
 for automated testing of ansible roles with molecule.
 
