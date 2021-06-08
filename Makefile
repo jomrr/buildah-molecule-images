@@ -4,7 +4,7 @@ image_path	:= "./images"
 
 images 		:= $(shell find $(image_path) -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 
-.PHONY: $(images) all clean clean-unused clean-all config parallel push test
+.PHONY: $(images) all clean clean-unused clean-all config docker parallel push test
 
 $(images): config
 	@./images/images $@ || exit 1
@@ -25,6 +25,9 @@ config: clean
 		mkdir -p ${image_path}/$$i ; \
 	done
 	@find ${image_path}/ -type f -exec chmod 755 {} +
+
+docker:
+	@./images/docker
 
 parallel: config
 	@./images/parallel

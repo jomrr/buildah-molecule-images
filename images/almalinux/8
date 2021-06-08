@@ -15,10 +15,11 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl python3 python3-xml shadow sudo systemd vim wget which"
+packages="bash curl hostname initscripts NetworkManager passwd python3 sudo \
+    vim wget which"
 
 # Create a container
-container=$(buildah from --format=docker ${default_registry}/${image_name}/tumbleweed:latest)
+container=$(buildah from --format=docker ${default_registry}/${image_name}/${image_name}:${image_tag})
 
 # Label the container
 buildah config --label maintainer="${maintainer}" ${container}
@@ -30,12 +31,19 @@ buildah config --env container=docker ${container}
 buildah config --volume /sys/fs/cgroup ${container}
 
 # Provision the container
-buildah run ${container} zypper -n in ${packages}
-buildah run ${container} zypper clean
+buildah run ${container} yum -y install rpm centos-release dnf-plugins-core
+buildah run ${container} yum -y update
+buildah run ${container} yum -y install ${packages}
+buildah run ${container} yum clean all
+buildah run ${container} rm -rf /usr/share/doc/*
+buildah run ${container} rm -rf /usr/share/man/*
+buildah run ${container} rm -rf /var/lib/apt/lists/*
+buildah run ${container} rm -rf /tmp/*
+buildah run ${container} rm -rf /var/tmp/*
 
 # Fix https://github.com/jam82/buildah-molecule-images/issues/3
 # adopted from https://github.com/bdellegrazie/docker-debian-systemd/
-buildah run ${container} find /etc/systemd/system /usr/lib/systemd/system \
+buildah run ${container} find /etc/systemd/system /lib/systemd/system \
     -path '*.wants/*' \
     -not -name '*dbus*' \
     -not -name '*journald*' \
@@ -51,9 +59,7 @@ buildah run ${container} systemctl mask \
     kdump.service \
     proc-sys-fs-binfmt_misc.automount \
     sys-fs-fuse-connections.mount \
-    systemd-journald-audit.socket \
     systemd-tmpfiles-setup.service \
-    systemd-tmpfiles-setup-dev.service \
     systemd-udev-trigger.service
 
 # Do not require tty on ssh connection (to speed up ansible)

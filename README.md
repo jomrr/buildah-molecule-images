@@ -17,11 +17,44 @@ I use it on Manjaro (based on Archlinux).
 * GNU parallel (optional)
 * podman
 
-## Usage
+## Available Images
 
-TODO
+| Distribution | Version | Image on Docker Hub |
+|--------------|---------|---------------------|
+| Almalinux | 8 | jam82/molecule-almalinux:8 |
+| | Latest | jam82/molecule-almalinux:latest |
+| Alpine | 3.11 | jam82/molecule-alpine:3.11 |
+| | 3.12 | jam82/molecule-alpine:3.12 |
+| | 3.13 | jam82/molecule-alpine:3.13 |
+| | Latest | jam82/molecule-alpine:latest |
+| Archlinux | Latest | jam82/molecule-archlinux:latest |
+| CentOS | 7 | jam82/molecule-centos:7 |
+| | 8 | jam82/molecule-centos:8 |
+| | Latest | jam82/molecule-centos:latest |
+| Debian | 9 | jam82/molecule-debian:9 |
+| | 10 | jam82/molecule-debian:10 |
+| | 11 | jam82/molecule-debian:11 |
+| | Latest | jam82/molecule-debian:latest |
+| | Testing | jam82/molecule-debian:testing |
+| Fedora | 33 | jam82/molecule-fedora:33 |
+| | 34 | jam82/molecule-fedora:34 |
+| | Latest | jam82/molecule-fedora:latest |
+| | Rawhide | jam82/molecule-fedora:rawhide |
+| OpenSuse Leap | 15 | jam82/molecule-opensuse:15 |
+| | Latest | jam82/molecule-opensuse:latest |
+| OpenSuse Tumbleweed | Latest | jam82/molecule-opensuse:tumbleweed |
+| Oracle Linux | 7 | jam82/molecule-oraclelinux:7 |
+| | 8 | jam82/molecule-oraclelinux:8 |
+| | Latest | jam82/molecule-oraclelinux:latest |
+| Ubuntu | 16.04 | jam82/molecule-ubuntu:16.04 |
+| | 18.04 | jam82/molecule-ubuntu:18.04 |
+| | 20.04 | jam82/molecule-ubuntu:20.04 |
+| | Latest | jam82/molecule-ubuntu:latest |
 
-## Examples
+## Usage examples
+
+The term `container registry` in the following examples refers to
+the default_registry configured in [images/common](images/common).
 
 ### Build all images and push to container registry
 
@@ -30,13 +63,23 @@ make all
 make push
 ```
 
+### Push images to local docker-daemon for direct use without download
+
+This filters all local podman images built by `$maintainer` and stored as
+`localhost/$image:$tag` and pushes them
+to `docker-daemon:$maintainer/molecule-$image:$tag`.
+
+```shell
+make docker
+```
+
 ### Build all images in parallel
 
 ```shell
 make parallel
 ```
 
-### Build all images of a distribution
+### Build all images of a distribution and push to container registry
 
 For example, to build all Debian images and push them:
 
@@ -56,8 +99,8 @@ make push
 
 ## License and Author
 
-* Author:: Jonas Mauer (<jam@kabelmail.net>)
-* Copyright:: 2020, Jonas Mauer
+* Author:: jam82 (<jam@kabelmail.net>)
+* Copyright:: 2020, jam82
 
 Licensed under MIT License;
 See LICENSE file in repository.
