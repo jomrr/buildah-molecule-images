@@ -15,7 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash ca-certificates grep iproute2 locales procps python \
+packages="bash ca-certificates curl grep iproute2 locales procps python \
     python-apt python-software-properties rsyslog sudo systemd \
     systemd-sysv vim wget"
 
