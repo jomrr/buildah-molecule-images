@@ -14,5 +14,5 @@ do
     declare cmd="buildah push ${id} docker-daemon:${maintainer}/molecule-${image}:${tag}"
     echo "podman_image=${podman_image}"
     echo "$cmd"
-    buildah push ${id} $cmd || true
+    $cmd || true
 done
