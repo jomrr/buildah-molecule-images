@@ -27,14 +27,6 @@ buildah config --label maintainer="${maintainer}" ${container}
 # Set environment variables
 buildah config --env container=docker ${container}
 
-# Volume definitions
-buildah config --volume /run ${container}
-buildah config --volume /run/lock ${container}
-buildah config --volume /sys/fs/cgroup ${container}
-buildah config --volume /sys/fs/fuse ${container}
-buildah config --volume /tmp ${container}
-buildah config --volume /var/lib/journal ${container}
-
 # Provision the container
 buildah run ${container} pacman -Syyu --noconfirm
 buildah run ${container} pacman -S --noconfirm ${packages}
