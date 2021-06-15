@@ -27,9 +27,6 @@ buildah config --label maintainer="${maintainer}" ${container}
 # Set environment variables
 buildah config --env container=docker ${container}
 
-# Volume definitions
-buildah config --volume /sys/fs/cgroup ${container}
-
 # Provision the container
 buildah run ${container} dnf -y update
 buildah run ${container} dnf -y install ${packages}
@@ -45,7 +42,7 @@ buildah run ${container} find /etc/systemd/system /lib/systemd/system \
     -not -name '*systemd-user-sessions*' \
     -delete
 
-buildah run ${container} systemctl set-default multi-user.target
+buildah run ${container} systemctl set-default sysinit.target
 
 buildah run ${container} systemctl mask \
     dev-hugepages.mount \

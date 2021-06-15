@@ -15,8 +15,8 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl hostname iproute passwd python sudo systemd \
-    vim wget which yum-plugin-ovl"
+packages="bash curl hostname initscripts iproute passwd python sudo systemd \
+    systemd-sysv vim wget which yum-plugin-ovl"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
@@ -26,14 +26,6 @@ buildah config --label maintainer="${maintainer}" ${container}
 
 # Set environment variables
 buildah config --env container=docker ${container}
-
-# Volume definitions
-buildah config --volume /run ${container}
-buildah config --volume /run/lock ${container}
-buildah config --volume /sys/fs/cgroup ${container}
-buildah config --volume /sys/fs/fuse ${container}
-buildah config --volume /tmp ${container}
-buildah config --volume /var/lib/journal ${container}
 
 # Provision the container
 buildah run ${container} yum makecache fast
@@ -57,7 +49,7 @@ buildah run ${container} find /etc/systemd/system /lib/systemd/system \
     -not -name '*systemd-user-sessions*' \
     -delete
 
-buildah run ${container} systemctl set-default multi-user.target
+buildah run ${container} systemctl set-default sysinit.target
 
 buildah run ${container} systemctl mask \
     dev-hugepages.mount \
@@ -71,7 +63,7 @@ buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
 
 # CMD to run when starting container
-buildah config --cmd /usr/lib/systemd/systemd ${container}
+buildah config --cmd /usr/sbin/init ${container}
 
 # Save running container to image and squash all layers to one
 buildah commit --format docker --squash ${container} ${image_name}:${image_tag}

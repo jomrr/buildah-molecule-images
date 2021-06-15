@@ -30,9 +30,6 @@ buildah config --env container=docker ${container}
 buildah config --env LC_ALL=C ${container}
 buildah config --env DEBIAN_FRONTEND=noninteractive ${container}
 
-# Volume definitions
-buildah config --volume /sys/fs/cgroup ${container}
-
 # Provision the container
 buildah run ${container} apt-get update
 buildah run ${container} apt-get -y dist-upgrade
@@ -57,7 +54,7 @@ buildah run ${container} find /etc/systemd/system /lib/systemd/system \
     -not -name '*systemd-user-sessions*' \
     -delete
     
-buildah run ${container} systemctl set-default multi-user.target
+buildah run ${container} systemctl set-default sysinit.target
 
 buildah run ${container} systemctl mask \
     dev-hugepages.mount \
