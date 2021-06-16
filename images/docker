@@ -9,10 +9,10 @@ podman_images=$(podman images --format "{{.ID}}:{{.Repository}}:{{.Tag}}" --filt
 for podman_image in ${podman_images}
 do
     declare id=$(echo ${podman_image} | cut -d ":" -f1)
-    declare image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
-    declare tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
-    declare cmd="buildah push ${id} docker-daemon:${maintainer}/molecule-${image}:${tag}"
-    echo "podman_image=${podman_image}"
-    echo "$cmd"
-    $cmd || true
+    declare image=$(echo ${podman_image} | cut -d "/" -f3 | cut -d ":" -f1)
+    declare tag=$(echo ${podman_image} | cut -d "/" -f3 | cut -d ":" -f2)
+    declare cmd="buildah push ${id} docker-daemon:${maintainer}/${image}:${tag}"
+    log_action "Pushing image ${podman_image} to local docker-daemon..." && \
+    $cmd && log_success "${green}Pushed image ${greenb}${podman_image}${green} to local docker-daemon." \
+    || log_error "Could not push image ${redb}${podman_image}${red} to local docker-daemon."
 done
