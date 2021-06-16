@@ -30,10 +30,6 @@ buildah config --env container=docker ${container}
 buildah run ${container} zypper -n update
 buildah run ${container} zypper -n in ${packages}
 buildah run ${container} zypper clean
-buildah run ${container} rm -rf /usr/share/doc/*
-buildah run ${container} rm -rf /usr/share/man/*
-buildah run ${container} rm -rf /tmp/*
-buildah run ${container} rm -rf /var/tmp/*
 
 # Fix https://github.com/jam82/buildah-molecule-images/issues/3
 # adopted from https://github.com/bdellegrazie/docker-debian-systemd/
