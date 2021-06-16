@@ -29,7 +29,7 @@ env:
     - molecule_distribution=ubuntu
 
 script:
-  - buildah login docker.io -u jam82 -p $DOCKER_REGISTRY_SECRET
+  - buildah login -u jam82 -p $DOCKER_REGISTRY_SECRET docker.io
   - make $molecule_distribution
 
 deploy:
