@@ -10,10 +10,10 @@ podman_images=$(podman images --format "{{.Repository}}:{{.Tag}}" --filter label
 
 for podman_image in ${podman_images}
 do
-    declare image=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f1)
-    declare tag=$(echo ${podman_image} | cut -d "/" -f2 | cut -d ":" -f2)
+    declare image=$(echo ${podman_image} | cut -d "/" -f3 | cut -d ":" -f1)
+    declare tag=$(echo ${podman_image} | cut -d "/" -f3 | cut -d ":" -f2)
     declare pushed_source="localhost/$image:${tag}"
-    declare pushed_target="${default_registry}/${maintainer}/molecule-${image}:${tag}"
+    declare pushed_target="${default_registry}/${maintainer}/${image}:${tag}"
 
     log_action "Pushing image ${pushed_source} to ${pushed_target}..." && \
     buildah push --creds \

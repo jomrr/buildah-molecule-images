@@ -1,4 +1,6 @@
 # file: .travis.yml
+
+os: linux
 dist: bionic
 
 language: minimal
@@ -27,6 +29,7 @@ env:
     - molecule_distribution=ubuntu
 
 script:
+  - buildah login -u jam82 -p $DOCKER_REGISTRY_SECRET docker.io
   - make $molecule_distribution
 
 deploy:

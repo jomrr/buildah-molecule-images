@@ -15,9 +15,8 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="apt-utils bash ca-certificates curl dh-systemd grep iproute2 locales \
-    python python-apt rsyslog sudo systemd systemd-sysv \
-    vim wget"
+packages="apt-utils bash ca-certificates dh-systemd grep iproute2 \
+    python python-apt sudo systemd systemd-sysv"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
@@ -31,13 +30,10 @@ buildah config --env LC_ALL=C ${container}
 buildah config --env DEBIAN_FRONTEND=noninteractive ${container}
 
 # Provision the container
-buildah run ${container} apt-get update
-buildah run ${container} apt-get -y dist-upgrade
-buildah run ${container} apt-get install -y ${packages}
-buildah run ${container} apt-get clean
-buildah run ${container} sed -i 's/^\($ModLoad imklog\)/# \1/' /etc/rsyslog.conf
-buildah run ${container} locale-gen en_US.UTF-8
-buildah run ${container} locale-gen de_DE.UTF-8
+buildah run ${container} apt update
+buildah run ${container} apt -y full-upgrade
+buildah run ${container} apt install -y ${packages}
+buildah run ${container} apt clean
 buildah run ${container} rm -rf /usr/share/doc/*
 buildah run ${container} rm -rf /usr/share/man/*
 buildah run ${container} rm -rf /var/lib/apt/lists/*
@@ -47,22 +43,17 @@ buildah run ${container} rm -rf /var/tmp/*
 # Fix https://github.com/jam82/buildah-molecule-images/issues/3
 # adopted from https://github.com/bdellegrazie/docker-debian-systemd/
 buildah run ${container} find /etc/systemd/system /lib/systemd/system \
-    -path '*.wants/*' \
-    -not -name '*dbus*' \
-    -not -name '*journald*' \
-    -not -name '*systemd-tmpfiles*' \
-    -not -name '*systemd-user-sessions*' \
-    -delete
+    -path 'sysinit.target.wants/*' -not -name '*systemd-tmpfiles*' -delete
 
-buildah run ${container} systemctl set-default sysinit.target
-
-buildah run ${container} systemctl mask \
-    dev-hugepages.mount \
-    getty.service \
-    proc-sys-fs-binfmt_misc.automount \
-    sys-fs-fuse-connections.mount \
-    systemd-tmpfiles-setup.service \
-    systemd-journald-audit.socket
+buildah run ${container} rm -f /lib/systemd/system/multi-user.target.wants/* ; \
+buildah run ${container} rm -f /etc/systemd/system/*.wants/* ; \
+buildah run ${container} rm -f /lib/systemd/system/local-fs.target.wants/* ; \
+buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*udev* ; \
+buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*initctl* ; \
+buildah run ${container} rm -f /lib/systemd/system/basic.target.wants/* ; \
+buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/* ; \
+buildah run ${container} rm -f /lib/systemd/system/plymouth* ; \
+buildah run ${container} rm -f /lib/systemd/system/systemd-update-utmp*
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
@@ -72,4 +63,4 @@ buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
 buildah config --cmd /lib/systemd/systemd ${container}
 
 # Save running container to image and squash all layers to one
-buildah commit --format docker --squash ${container} ${image_name}:${image_tag}
+buildah commit --format docker --squash ${container} ${maintainer}/${repo_name}:${image_tag}

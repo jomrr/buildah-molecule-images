@@ -15,7 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash curl openrc python3 sudo vim wget which"
+packages="bash openrc procps python3 sudo"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
@@ -41,6 +41,10 @@ buildah run ${container} sed -i \
     's/hostname $opts/# hostname $opts/g' /etc/init.d/hostname
 buildah run ${container} sed -i \
     's/mount -t tmpfs/# mount -t tmpfs/g' /lib/rc/sh/init.sh
+buildah run ${container} rm -rf /usr/share/doc/*
+buildah run ${container} rm -rf /usr/share/man/*
+buildah run ${container} rm -rf /tmp/*
+buildah run ${container} rm -rf /var/tmp/*
 
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
@@ -50,4 +54,4 @@ buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
 buildah config --cmd /sbin/init ${container}
 
 # Save running container to image and squash all layers to one
-buildah commit --format docker --squash ${container} ${image_name}:${image_tag}
+buildah commit --format docker --squash ${container} ${maintainer}/${repo_name}:${image_tag}
