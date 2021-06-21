@@ -50,6 +50,13 @@ buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/* ; \
 buildah run ${container} rm -f /lib/systemd/system/plymouth* ; \
 buildah run ${container} rm -f /lib/systemd/system/systemd-update-utmp*
 
+# Fix High CPU usage on zombie `agetty` processes when using with `molecule` #9
+# https://github.com/geerlingguy/docker-ubuntu1804-ansible/issues/9
+buildah run ${container} rm -f /lib/systemd/system/systemd*udev*
+buildah run ${container} rm -f /lib/systemd/system/getty.target
+
+buildah run ${container} systemctl mask getty.service
+
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers

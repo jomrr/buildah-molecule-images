@@ -47,6 +47,8 @@ buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*initctl
 buildah run ${container} rm -f /lib/systemd/system/basic.target.wants/*
 buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/*
 
+buildah run ${container} systemctl mask getty.service
+
 # Do not require tty on ssh connection (to speed up ansible)
 buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
