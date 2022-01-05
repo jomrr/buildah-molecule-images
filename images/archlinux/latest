@@ -40,7 +40,6 @@ buildah run ${container} rm -f /lib/systemd/system/local-fs.target.wants/*
 buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*udev*
 buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*initctl*
 buildah run ${container} rm -f /lib/systemd/system/basic.target.wants/*
-buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/*
 
 buildah run ${container} systemctl mask getty.service
 
