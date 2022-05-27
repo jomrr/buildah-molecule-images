@@ -25,28 +25,24 @@ I use it on Manjaro (based on Archlinux).
 |--------------|---------|---------------------|
 | Almalinux | 8 | jam82/molecule-almalinux:8 |
 | | Latest | jam82/molecule-almalinux:latest |
-| Alpine | 3.11 | jam82/molecule-alpine:3.11 |
-| | 3.12 | jam82/molecule-alpine:3.12 |
-| | 3.13 | jam82/molecule-alpine:3.13 |
+| Alpine | 3.15 | jam82/molecule-alpine:3.15 |
+| | 3.16 | jam82/molecule-alpine:3.16 |
 | | Latest | jam82/molecule-alpine:latest |
 | Archlinux | Latest | jam82/molecule-archlinux:latest |
-| CentOS | 7 | jam82/molecule-centos:7 |
-| | 8 | jam82/molecule-centos:8 |
-| | Latest | jam82/molecule-centos:latest |
 | Debian | 9 | jam82/molecule-debian:9 |
 | | 10 | jam82/molecule-debian:10 |
 | | 11 | jam82/molecule-debian:11 |
 | | Latest | jam82/molecule-debian:latest |
 | | Testing | jam82/molecule-debian:testing |
-| Fedora | 33 | jam82/molecule-fedora:33 |
-| | 34 | jam82/molecule-fedora:34 |
+| | Unstable | jam82/molecule-debian:sid |
+| Fedora | 35 | jam82/molecule-fedora:35 |
+| | 36 | jam82/molecule-fedora:36 |
 | | Latest | jam82/molecule-fedora:latest |
 | | Rawhide | jam82/molecule-fedora:rawhide |
 | OpenSuse Leap | 15 | jam82/molecule-opensuse:15 |
 | | Latest | jam82/molecule-opensuse:latest |
 | OpenSuse Tumbleweed | Latest | jam82/molecule-opensuse:tumbleweed |
-| Oracle Linux | 7 | jam82/molecule-oraclelinux:7 |
-| | 8 | jam82/molecule-oraclelinux:8 |
+| Oracle Linux | 8 | jam82/molecule-oraclelinux:8 |
 | | Latest | jam82/molecule-oraclelinux:latest |
 | Ubuntu | 16.04 | jam82/molecule-ubuntu:16.04 |
 | | 18.04 | jam82/molecule-ubuntu:18.04 |
@@ -90,12 +86,12 @@ make debian
 make push
 ```
 
-### Build a single image (CentOS 8) and push it to container registry
+### Build a single image (AlmaLinux 8) and push it to container registry
 
 Call the build script directly:
 
 ```shell
-./images/centos/8
+./images/almalinux/8
 make push
 ```
 
