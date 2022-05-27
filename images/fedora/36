@@ -15,8 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash hostname initscripts iproute passwd procps-ng python \
-    sudo systemd systemd-sysv yum-plugin-ovl"
+packages="bash findutils hostname iproute passwd procps python3 sudo systemd"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
@@ -28,11 +27,9 @@ buildah config --label maintainer="${maintainer}" ${container}
 buildah config --env container=docker ${container}
 
 # Provision the container
-buildah run ${container} yum makecache fast
-buildah run ${container} yum -y update
-buildah run ${container} yum -y install ${packages}
-buildah run ${container} sed -i 's/plugins=0/plugins=1/g' /etc/yum.conf
-buildah run ${container} yum clean all
+buildah run ${container} dnf -y update
+buildah run ${container} dnf -y install ${packages}
+buildah run ${container} dnf clean all
 
 # Fix https://github.com/jam82/buildah-molecule-images/issues/3
 # adopted from https://github.com/bdellegrazie/docker-debian-systemd/
@@ -45,6 +42,7 @@ buildah run ${container} rm -f /lib/systemd/system/local-fs.target.wants/*
 buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*udev*
 buildah run ${container} rm -f /lib/systemd/system/sockets.target.wants/*initctl*
 buildah run ${container} rm -f /lib/systemd/system/basic.target.wants/*
+buildah run ${container} rm -f /lib/systemd/system/anaconda.target.wants/*
 
 buildah run ${container} systemctl mask getty.service
 
@@ -53,7 +51,7 @@ buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
     /etc/sudoers
 
 # CMD to run when starting container
-buildah config --cmd /usr/sbin/init ${container}
+buildah config --cmd /usr/lib/systemd/systemd ${container}
 
 # Save running container to image and squash all layers to one
 buildah commit --format docker --squash ${container} ${maintainer}/${repo_name}:${image_tag}
