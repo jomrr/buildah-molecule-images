@@ -15,7 +15,7 @@ image_tag=$(basename "$0")
 repo_name="molecule-${image_name}"
 
 # Define packages to be installed
-packages="bash hostname initscripts passwd procps-ng python3 sudo"
+packages="bash findutils hostname iproute passwd procps python3 sudo systemd"
 
 # Create a container
 container=$(buildah from --format=docker ${default_registry}/${image_name}:${image_tag})
@@ -27,10 +27,9 @@ buildah config --label maintainer="${maintainer}" ${container}
 buildah config --env container=docker ${container}
 
 # Provision the container
-buildah run ${container} yum -y install rpm centos-release dnf-plugins-core
-buildah run ${container} yum -y update
-buildah run ${container} yum -y install ${packages}
-buildah run ${container} yum clean all
+buildah run ${container} dnf -y update
+buildah run ${container} dnf -y install ${packages}
+buildah run ${container} dnf clean all
 
 # Fix https://github.com/jam82/buildah-molecule-images/issues/3
 # adopted from https://github.com/bdellegrazie/docker-debian-systemd/
