@@ -53,4 +53,4 @@ buildah run ${container} sed -i -e 's/^\(Defaults\s*requiretty\)/#--- \1/' \
 buildah config --cmd /usr/lib/systemd/systemd ${container}
 
 # Save running container to image and squash all layers to one
-buildah commit --format docker --squash ${container} ${maintainer}/${repo_name}:${image_tag}
+buildah commit --format docker --rm ${container} ${maintainer}/${repo_name}:${image_tag}
