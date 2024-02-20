@@ -3,7 +3,9 @@
 Makefile-based creation of container images with buildah and podman
 for automated testing of ansible roles with molecule.
 
-## + This repository has been archived, see [ansible-molecule-images](https://github.com/jam82/ansible-molecule-images) +
+> ## +++
+> ## This repository has been archived, see [ansible-molecule-images](https://github.com/jam82/ansible-molecule-images)
+> ## +++
 
 ## Supported Platforms
 
